@@ -1,5 +1,6 @@
 package edu.brandeis.cs.cs131.pa1.filter.sequential;
 
+import java.util.List;
 import java.util.Scanner;
 
 import edu.brandeis.cs.cs131.pa1.filter.Message;
@@ -19,28 +20,15 @@ public class SequentialREPL {
 
 		Scanner consoleReader = new Scanner(System.in);
 		System.out.print(Message.WELCOME);
+		boolean continue_loop = true;
 
-		while (true) {
+		while (continue_loop) {
 			System.out.print(Message.NEWCOMMAND);
 
 			// read user command, if its just whitespace, skip to next command
 			String cmd = consoleReader.nextLine();
-			String[] words = cmd.trim().split(" ");
-			if (cmd.trim().isEmpty()) {
-				continue;
-			}
-
-			// exit the REPL if user specifies it
-			if (cmd.trim().equals("exit")) {
-				break;
-			}
+			List<SequentialFilter> commands = SequentialCommandBuilder.createFiltersFromCommand(cmd);
 			
-			if (words[0].equals("cat")) {
-				SequentialFilter catCmd = new CatFilter(words);
-				catCmd.process();
-			}
-
-			throw new UnsupportedOperationException("IMPLEMENT REST OF REPL HERE");
 		}
 		System.out.print(Message.GOODBYE);
 		consoleReader.close();

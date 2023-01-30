@@ -1,5 +1,6 @@
 package edu.brandeis.cs.cs131.pa1.filter.sequential;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,13 +11,26 @@ import java.util.List;
 public class SequentialCommandBuilder {
 
 	public static List<SequentialFilter> createFiltersFromCommand(String command) {
-
-		throw new UnsupportedOperationException("UNIMPLEMENTED");
+		List<SequentialFilter> resultList = new ArrayList<SequentialFilter>();
+		resultList.add(constructFilterFromSubCommand(command));
+		return  resultList;
+//		throw new UnsupportedOperationException("UNIMPLEMENTED");
 	}
 
 	private static SequentialFilter constructFilterFromSubCommand(String subCommand) {
+		SequentialFilter commandFilter = null;
+		String[] words = subCommand.trim().split(" ");
+		if (words.length == 0)
+			return null;
+		
+		if (words[0].equals("exit")) {
+			commandFilter = new ExitFilter(subCommand);			
+		}
 
-		throw new UnsupportedOperationException("UNIMPLEMENTED");
+		if (words[0].equals("cat")) {
+			commandFilter = new CatFilter(subCommand);
+		}
+		return null;
 	}
 
 	private static void linkFilters(List<SequentialFilter> filters) {
