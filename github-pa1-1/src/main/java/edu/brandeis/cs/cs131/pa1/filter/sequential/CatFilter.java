@@ -1,17 +1,16 @@
 package edu.brandeis.cs.cs131.pa1.filter.sequential;
 
-import edu.brandeis.cs.cs131.pa1.filter.Filter;
-
 public class CatFilter extends SequentialFilter {
 	String[] words;
 
-	public CatFilter(String[] wordsArray) {
-		this.words = wordsArray;
+	public CatFilter(String subCommand) {
+		input = new Pipe();
+		output = new Pipe();
+		this.words = subCommand.split(" ");
 	}
 
 	@Override
 	protected String processLine(String line) {
-		String theLine = this.words[1];
 		return null;
 	}
 

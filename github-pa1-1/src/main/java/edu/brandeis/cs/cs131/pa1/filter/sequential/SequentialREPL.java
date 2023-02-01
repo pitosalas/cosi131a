@@ -27,12 +27,19 @@ public class SequentialREPL {
 
 			// read user command, if its just whitespace, skip to next command
 			String cmd = consoleReader.nextLine();
+
+			// exit the REPL if user specifies it
+			if (cmd.trim().equals("exit")) {
+				break;
+			}
+
 			List<SequentialFilter> commands = SequentialCommandBuilder.createFiltersFromCommand(cmd);
-			
+			for (SequentialFilter sf : commands) {
+				sf.process();
+			}
 		}
 		System.out.print(Message.GOODBYE);
 		consoleReader.close();
-
 	}
 
 }

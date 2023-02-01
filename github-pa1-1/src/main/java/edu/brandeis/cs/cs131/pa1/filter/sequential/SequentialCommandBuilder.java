@@ -30,7 +30,7 @@ public class SequentialCommandBuilder {
 		if (words[0].equals("cat")) {
 			commandFilter = new CatFilter(subCommand);
 		}
-		return null;
+		return commandFilter;
 	}
 
 	private static void linkFilters(List<SequentialFilter> filters) {
