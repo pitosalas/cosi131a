@@ -1,11 +1,11 @@
-package edu.brandeis.cs.cs131.pa3.tunnel;
+package edu.brandeis.cs.cs131.pa4.submission;
 import java.util.Objects;
 
-import edu.brandeis.cs.cs131.pa3.logging.EventType;
-import edu.brandeis.cs.cs131.pa3.logging.Log;
-import edu.brandeis.cs.cs131.pa3.scheduler.Scheduler;
-
-
+import edu.brandeis.cs.cs131.pa4.logging.EventType;
+import edu.brandeis.cs.cs131.pa4.logging.Log;
+import edu.brandeis.cs.cs131.pa4.scheduler.Scheduler;
+import edu.brandeis.cs.cs131.pa4.tunnel.Direction;
+import edu.brandeis.cs.cs131.pa4.tunnel.Tunnel;
 
 /**
  * A Vehicle is a Thread which enters Tunnels. You must subclass
@@ -17,10 +17,14 @@ import edu.brandeis.cs.cs131.pa3.scheduler.Scheduler;
  * 
  * The Vehicle does not know about the available tunnels and 
  * relies on the scheduler to be entered in a tunnel.
+ *
+ * You may need to edit run() or doWhileInTunnel() for the 
+ * PreemptivePriorityScheduler and allow a vehicle to be signaled 
+ * by an Ambulance while running in a tunnel.
  * 
  * @author cs131a
  */
-public abstract class Vehicle extends Thread implements Comparable<Vehicle> {
+public abstract class Vehicle extends Thread implements Comparable<Vehicle>{
 	/**
 	 * The name of this vehicle
 	 */
@@ -33,7 +37,7 @@ public abstract class Vehicle extends Thread implements Comparable<Vehicle> {
     /**
      * The scheduler that this vehicle will use
      */
-    private Scheduler scheduler;
+    private Scheduler 			scheduler;
     
     /**
      * The priority of this vehicle
@@ -46,8 +50,46 @@ public abstract class Vehicle extends Thread implements Comparable<Vehicle> {
     /**
      * The log used to log operations
      */
-    private Log 				log;		
-
+    private Log 				log;
+    
+    /**
+     * This is what your vehicle does while inside the tunnel to
+     * simulate taking time to "cross" the tunnel. The faster your
+     * vehicle is, the less time this will take.
+     * You will need to change this method (or create a new one) in order
+     * to support preemption for the PremptivePriorityScheduler: a vehicle
+     * must be able to pull-over and wait for an ambulance to cross the tunnel it entered.
+     */
+    public final void doWhileInTunnel() {
+    	try {
+			sleep((10-speed)*100);
+		} catch (InterruptedException e) {
+			System.err.println("Interrupted vehicle " + getVehicleName());
+		}
+    }
+    
+    /**
+     * Find and cross through one of the tunnels via the scheduler.
+     * 
+     * When a thread is run, it asks the scheduler to admit it in one
+     * of the tunnels. The scheduler is responsible for taking this vehicle
+     * and going through its collection of available tunnels until it 
+     * succeeds in entering one of them. Then, the vehicle thread will call 
+     * doWhileInTunnel (to simulate doing some work inside the tunnel,
+     * i.e., that it takes time to cross the tunnel) and finally exit that tunnel
+     * through the scheduler.
+     */
+    public final void run() {
+    	if(scheduler == null) { // Cannot operate if there is no scheduler set
+        	throw new UnsupportedOperationException("There is no scheduler set!");
+        }
+    	//use the given scheduler to schedule this vehicle
+		scheduler.admit(this);
+		doWhileInTunnel();
+		scheduler.exit(this);
+		this.log.addToLog(this, EventType.COMPLETE);
+    }
+    
     /**
      * Initialize a Vehicle; called from Vehicle constructors.
      * 
@@ -178,28 +220,6 @@ public abstract class Vehicle extends Thread implements Comparable<Vehicle> {
     }
     
     /**
-     * Find and cross through one of the tunnels via the scheduler.
-     * 
-     * When a thread is run, it asks the scheduler to admit it in one
-     * of the tunnels. The scheduler is responsible for taking this vehicle
-     * and going through its collection of available tunnels until it 
-     * succeeds in entering one of them. Then, the vehicle thread will call 
-     * doWhileInTunnel (to simulate doing some work inside the tunnel,
-     * i.e., that it takes time to cross the tunnel) and finally exit that tunnel
-     * through the scheduler.
-     */
-    public final void run() {
-    	if(scheduler == null) { // Cannot operate if there is no scheduler set
-        	throw new UnsupportedOperationException("There is no scheduler set!");
-        }
-    	//use the given scheduler to schedule this vehicle
-		Tunnel t = scheduler.admit(this);
-		doWhileInTunnel();
-		scheduler.exit(this);
-		this.log.addToLog(this, EventType.COMPLETE);
-    }
-    
-    /**
      * Returns the direction of this vehicle
      *
      * @return the direction of this vehicle
@@ -207,23 +227,6 @@ public abstract class Vehicle extends Thread implements Comparable<Vehicle> {
     public final Direction getDirection() {
         return direction;
     }
-
-    /**
-     * This is what your vehicle does while inside the tunnel to
-     * simulate taking time to "cross" the tunnel. The faster your
-     * vehicle is, the less time this will take.
-     * You will need to change this method (or create a new one) in order
-     * to support preemption for the PremptivePriorityScheduler: a vehicle
-     * must be able to pull-over and wait for an ambulance to cross the tunnel it entered.
-     */
-    public final void doWhileInTunnel() {
-    	try {
-			sleep((10-speed)*100);
-		} catch (InterruptedException e) {
-			System.err.println("Interrupted vehicle " + getVehicleName());
-		}
-    }
-   
     
     @Override
     public int hashCode() {

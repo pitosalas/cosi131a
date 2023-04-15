@@ -1,4 +1,6 @@
-package edu.brandeis.cs.cs131.pa3.tunnel;
+package edu.brandeis.cs.cs131.pa4.tunnel;
+
+import edu.brandeis.cs.cs131.pa4.submission.Vehicle;
 
 /**
  * A Sled is a slow Vehicle.
@@ -23,6 +25,6 @@ public class Sled extends Vehicle {
     
     @Override
     public String toString() {
-        return String.format("%s SLED %s (%d)", super.getDirection(), super.getVehicleName(), super.getVehiclePriority());
+        return String.format("%s SLED %s", super.getDirection(), super.getVehicleName());
     }
 }
