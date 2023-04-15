@@ -49,6 +49,9 @@ public class PriorityScheduler extends Scheduler {
 			for (Tunnel t : tunnels) {
 				if (t.tryToEnter(vehicle)) {
 					System.out.printf(">> admited %s into tunnel %s\n", vehicle, t);
+					if (waiting.remove(vehicle)) {
+						System.out.printf("*** Removed %s from waiting queue\n",vehicle);
+					}
 					tunnelMap.put(vehicle, t);
 					return t;
 				} else {
