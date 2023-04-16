@@ -17,7 +17,7 @@ public class PriorityScheduler extends Scheduler {
 	private Collection<Tunnel> tunnels;
 	private String name;
 	ArrayList<Vehicle> waiting = new ArrayList<Vehicle>();
-    HashMap<Vehicle, Tunnel> tunnelMap = new HashMap<Vehicle, Tunnel>();
+	HashMap<Vehicle, Tunnel> tunnelMap = new HashMap<Vehicle, Tunnel>();
 
 	/**
 	 * Creates an instance of a priority scheduler with the given name and tunnels
@@ -34,40 +34,37 @@ public class PriorityScheduler extends Scheduler {
 	@Override
 	public synchronized Tunnel admit(Vehicle vehicle) {
 // Look through each tunnel and see if the vehicle can be admitted
-		while (true) {
-			Vehicle waiter = getHighestWaitingVehicle();
-			if (waiter != null && vehicle.getVehiclePriority() <  waiter.getVehiclePriority()) {
-				System.out.printf("%s has to wait because theres a higher priority vehicle %s waiting\n", vehicle, waiter);					
-				waiting.add(vehicle);
-				try {
+		try {
+			waiting.add(vehicle);
+			while (true) {
+				Vehicle waiter = getHighestWaitingVehicle();
+				while (waiter != null && vehicle.getVehiclePriority() < waiter.getVehiclePriority()) {
+					System.out.printf("%s has to wait because theres a higher priority vehicle %s waiting\n", vehicle,
+							waiter);
 					wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					waiter = getHighestWaitingVehicle();
 				}
-			}
-			for (Tunnel t : tunnels) {
-				if (t.tryToEnter(vehicle)) {
-					System.out.printf(">> admited %s into tunnel %s\n", vehicle, t);
-					if (waiting.remove(vehicle)) {
-						System.out.printf("*** Removed %s from waiting queue\n",vehicle);
+
+				for (Tunnel t : tunnels) {
+					if (t.tryToEnter(vehicle)) {
+						System.out.printf(">>  admitted %s into tunnel %s\n", vehicle, t);
+						if (waiting.remove(vehicle)) {
+							System.out.printf("*** Removed %s from waiting queue\n", vehicle);
+							notifyAll();
+						}
+						tunnelMap.put(vehicle, t);
+						return t;
+					} else {
+						System.out.printf("Didn't admit %s into tunnel %s\n", vehicle, t);
+						wait();
 					}
-					tunnelMap.put(vehicle, t);
-					return t;
-				} else {
-					System.out.printf("Didn't admit %s into tunnel %s\n", vehicle, t);
 				}
 			}
-// Get here if no tunnel could admit this vehicle
-			try {
-				System.out.printf("%s has to wait because no queues want to accept him\n", vehicle);					
-				waiting.add(vehicle);
-				wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		} catch (InterruptedException e) {
+
 		}
+		return null;
+
 	}
 
 	@Override
@@ -77,11 +74,11 @@ public class PriorityScheduler extends Scheduler {
 		tunnelMap.remove(vehicle);
 		notifyAll();
 	}
-	
+
 	private Vehicle getHighestWaitingVehicle() {
 		int highestPrio = 0;
 		Vehicle highest = null;
-		for (Vehicle v: waiting) {
+		for (Vehicle v : waiting) {
 			if (v.getVehiclePriority() > highestPrio) {
 				highest = v;
 				highestPrio = v.getVehiclePriority();

@@ -23,6 +23,6 @@ public class Sled extends Vehicle {
     
     @Override
     public String toString() {
-        return String.format("%s SLED %s (%d)", super.getDirection(), super.getVehicleName(), super.getVehiclePriority());
+        return String.format("%s SLED %s", super.getDirection(), super.getVehicleName());
     }
 }

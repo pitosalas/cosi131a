@@ -37,11 +37,16 @@ public class BasicTunnel extends Tunnel {
 			printInTunnel();
 			return true;
 		}
+		System.out.printf("   %s Can't enter tunnel because: %b %b\n", v, okType(v), okDirection(v));
+		printInTunnel();
 		return false;
 	}
 
 	@Override
 	protected synchronized void exitTunnelInner(Vehicle vehicle) {
+		if (car_count + sled_count != inside.size()) throw new IllegalStateException("exitTunnelInner");
+		if (inside.size() == 0 && direction != null) throw new IllegalStateException("exitTunnelInner");
+
 		if (vehicle instanceof Sled) {
 			sled_count--;
 			System.out.printf("Sled %s exited tunnel %s\n", vehicle, this);
@@ -95,7 +100,6 @@ public class BasicTunnel extends Tunnel {
 		else
 			throw new IllegalStateException("exitTunnelInner");
 	}
-
 	private void printInTunnel() {
 		System.out.printf("   %s[", getName());
 		for (Vehicle v : inside) {
@@ -103,4 +107,6 @@ public class BasicTunnel extends Tunnel {
 		}
 		System.out.println("]");
 	}
+	
+
 }

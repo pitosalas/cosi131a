@@ -23,6 +23,6 @@ public class Car extends Vehicle {
     
     @Override
     public String toString() {
-        return String.format("%s CAR %s (%s)", super.getDirection(), super.getVehicleName(), super.getVehiclePriority());
+        return String.format("%s CAR %s", super.getDirection(), super.getVehicleName());
     }
 }
